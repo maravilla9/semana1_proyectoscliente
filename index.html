@@ -121,6 +121,12 @@ footer{text-align:center;font-size:12px;color:#7A7896;font-style:italic;padding:
 .slot .ph{flex:1;text-align:left}
 
 /* VISUALES */
+.ptiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:6px}
+.pt{background:linear-gradient(135deg,var(--ind),var(--blue));color:#fff;border-radius:14px;padding:16px 10px;text-align:center;font-weight:700;font-size:13px}
+.pt span{display:block;font-size:28px;margin-bottom:4px}
+.alist{display:grid;gap:7px}
+.ai{background:#FAF9FF;border:1px solid var(--line);border-left:4px solid var(--ind);border-radius:10px;padding:7px 11px;font-size:12.5px}
+.ai span{display:block;color:var(--mut);font-size:11.5px}
 .cap{font-size:12px;color:var(--mut);font-weight:600;text-align:center;margin-top:8px}
 .cap b{color:var(--ind)}
 .flow{display:flex;flex-direction:column;gap:4px;align-items:stretch;max-width:430px;margin:0 auto}
@@ -281,13 +287,14 @@ footer{text-align:center;font-size:12px;color:#7A7896;font-style:italic;padding:
   <div class="modal">
     <span class="tag">Desafío en clase · Semana 1</span>
     <h2>📋 Arma tu plan de trabajo</h2>
-    <p>Un cliente te contrata y antes de arrancar necesitas un <b>plan de trabajo</b>: qué se va a hacer, en cuánto tiempo y cuánto va a costar. Elige un escenario y arma el plan en 5 etapas: <b>características del plan, plan maestro, alcance, calendario y costos</b>.</p>
+    <p>Un cliente te contrata y antes de arrancar necesitas un <b>plan de trabajo</b>: qué se va a hacer, en cuánto tiempo y cuánto va a costar. Elige un escenario y responde 10 preguntas rápidas en 5 etapas: <b>características del plan, plan maestro, alcance, calendario y costos</b>.</p>
     <div class="lbl">1. Elige tu escenario</div>
     <div class="scs" id="scs"></div>
     <div class="lbl">2. Escribe tu nombre</div>
     <input id="nameIn" maxlength="40" placeholder="Tu nombre como aparecerá en tu certificado" autocomplete="name">
     <div class="que">👉 <b>Qué hacer:</b> elige un escenario, escribe tu nombre y presiona <b>Comenzar</b>.</div>
-    <button class="btn pri" id="btnStart" disabled style="width:100%">Comenzar ➜</button>
+    <div class="fb" id="startFb" style="margin:0 0 8px;min-height:0"></div>
+    <button class="btn pri" id="btnStart" style="width:100%">Comenzar ➜</button>
   </div>
 </div>
 
@@ -518,104 +525,107 @@ const CATS = [
 
 /* ---------- PASOS ---------- */
 function buildSteps(sc) {
-  const dragQ = 'arrastra cada tarjeta a la columna correcta (o tócala y después toca la columna). Al terminar presiona <b>Confirmar</b>.';
+  const q = 'Elige una opción y presiona <b>Confirmar</b>.';
+  const A = sc.acts, last = A[A.length - 1];
+  const actName = id => A.find(x => x.id === id).t;
+  const sum = A.reduce((x, y) => x + y.d, 0), tot = schedule(A).total;
+  const durOpts = [...new Set([tot, sum, tot - 1 === sum ? tot + 1 : (tot - 1 > 0 ? tot - 1 : tot + 2)])].slice(0, 3);
+  const T = totalCost();
+  const totOpts = [T, T - 5000, T + 10000];
+  const diff = sc.budget - T;
+  const budTxt = d => d === 0 ? 'Alcanza exacto' : (d > 0 ? `Sí alcanza y sobran ${money(d)}` : `No alcanza, faltan ${money(-d)}`);
+  const objWrong = sc.obj.map((t, i) => i).filter(i => i !== sc.objAns).slice(0, 2);
+  const inA = sc.scope.filter(x => x.z === 'in'), outA = sc.scope.filter(x => x.z === 'out');
   return [
-    { st: 0, type: 'sort', board: 'Columnas del plan',
-      zones: [{ id: 'si', t: '✅ Sí caracteriza a un plan de trabajo' }, { id: 'no', t: '❌ No caracteriza a un plan de trabajo' }],
-      items: [
-        { id: 's1', t: 'Objetivos claros y medibles', z: 'si', w: 'Sin objetivos medibles no sabes si el proyecto cumplió.' },
-        { id: 's2', t: 'Actividades con un responsable', z: 'si', w: 'Cada actividad necesita a alguien que responda por ella.' },
-        { id: 's3', t: 'Fechas de inicio y término', z: 'si', w: 'Las fechas permiten medir el avance y detectar atrasos.' },
-        { id: 's4', t: 'Recursos y costos estimados', z: 'si', w: 'Sin recursos ni costos no se puede armar el presupuesto.' },
-        { id: 's5', t: 'Se revisa y actualiza durante el proyecto', z: 'si', w: 'El plan es un documento vivo que se ajusta para dar seguimiento.' },
-        { id: 's6', t: 'Se escribe cuando el proyecto ya terminó', z: 'no', w: 'El plan se hace antes de ejecutar, no al final.' },
-        { id: 's7', t: 'Solo lo conoce el responsable, no el cliente ni el equipo', z: 'no', w: 'El plan se comparte con el cliente y el equipo para que todos sepan qué sigue.' },
-        { id: 's8', t: 'Sin fechas: se hace cuando se pueda', z: 'no', w: 'Sin fechas no hay forma de controlar el avance.' }
-      ],
+    { st: 0, vis: 'plan', board: 'Así se ve un plan de trabajo',
+      opts: ['Tiene objetivos claros y medibles', 'Se escribe cuando el proyecto ya terminó', 'Solo lo conoce el responsable'], ans: 0,
+      why: [null, 'El plan se hace antes de ejecutar; al final ya no sirve para guiar el trabajo.', 'El plan se comparte con el cliente y el equipo para que todos sepan qué sigue.'],
       title: '¿Qué tiene un buen plan de trabajo?',
-      ctx: `Antes de arrancar ${sc.short}, identifica las características de un plan que sí permite dar seguimiento.`,
-      que: dragQ,
-      rec: 'Un plan de trabajo tiene objetivos medibles, actividades con responsable, fechas, recursos y costos, y se actualiza para dar seguimiento al proyecto.',
-      ok: 'Esas cinco características permiten dar seguimiento. Un plan sin fechas o que nadie conoce no sirve para controlar el proyecto.' },
+      ctx: `Vas a arrancar ${sc.short}. Antes que nada necesitas un plan.`,
+      que: '¿cuál <b>sí</b> es una característica de un plan de trabajo? ' + q,
+      rec: 'Un plan de trabajo tiene objetivos medibles, actividades con responsable, fechas, recursos y costos.',
+      ok: 'Sin objetivos medibles no sabes si el proyecto cumplió.' },
+    { st: 0, vis: 'plan', board: 'Así se ve un plan de trabajo',
+      opts: ['Para que el documento se vea más completo', 'Para dar seguimiento y controlar el avance', 'Solo para poder cobrarle al cliente'], ans: 1,
+      why: ['No es decoración: cada dato sirve para saber si vas bien o tarde.', null, 'El cobro es una parte, pero el plan sirve para guiar y controlar todo el proyecto.'],
+      title: '¿Para qué sirven fechas, responsables y costos?',
+      ctx: 'El plan incluye quién hace cada actividad, cuándo y cuánto cuesta.',
+      que: q,
+      rec: 'El plan de trabajo existe para dar seguimiento al proyecto.',
+      ok: 'Con fechas, responsables y costos puedes comparar lo planeado contra lo real.' },
 
-    { st: 1, type: 'order', board: 'Pasos del plan maestro',
-      items: [
-        { id: 'p1', t: 'Acordar alcance y objetivos con el cliente', p: [] },
-        { id: 'p2', t: 'Desglosar el trabajo en actividades', p: ['p1'] },
-        { id: 'p3', t: 'Elaborar el calendario', p: ['p2'] },
-        { id: 'p4', t: 'Estimar costos y presupuesto', p: ['p3'] },
-        { id: 'p5', t: 'Integrar y aprobar el plan maestro', p: ['p4'] }
-      ],
-      title: 'Construye el plan maestro',
-      ctx: 'El plan maestro reúne las piezas del plan de trabajo en un orden lógico.',
-      que: 'arrastra cada paso a su número, en el orden en que se elabora (o tócalo y después toca el número). Presiona <b>Confirmar</b>.',
-      rec: 'Primero se acuerda qué se va a hacer, después se desglosa en actividades; con ellas se arma el calendario, se costean y al final se integra todo y el cliente lo aprueba.',
-      ok: 'Así se construye el plan maestro: cada pieza alimenta a la siguiente.' },
-    { st: 1, type: 'mc', vis: 'flow', board: 'Tu plan maestro',
-      opts: ['Es la lista de compras del proyecto',
-        'Integra el alcance, el calendario y el presupuesto aprobados para controlar el proyecto',
-        'Es el reporte que se entrega al cerrar el proyecto',
-        'Es un documento opcional que se hace si sobra tiempo'], ans: 1,
-      why: ['La lista de compras es solo una parte de los costos; el plan maestro integra todo el proyecto.', null, 'El reporte de cierre se hace al final; el plan maestro se hace antes de ejecutar.', 'No es opcional: sin él no hay contra qué comparar el avance.'],
+    { st: 1, vis: 'flow', board: 'Pasos del plan maestro',
+      opts: ['Elaborar el calendario', 'Estimar los costos', 'Acordar alcance y objetivos con el cliente'], ans: 2,
+      why: ['No puedes calendarizar algo que todavía no sabes qué es.', 'Sin saber qué se va a hacer no hay qué costear.', null],
+      title: '¿Por dónde empieza el plan maestro?',
+      ctx: 'El plan maestro reúne todas las piezas del plan en un orden lógico.',
+      que: '¿qué va <b>primero</b>? ' + q,
+      rec: 'Primero se acuerda qué se va a hacer; después el calendario y al final los costos.',
+      ok: 'Todo arranca con el alcance y los objetivos acordados con el cliente.' },
+    { st: 1, vis: 'flow', board: 'Pasos del plan maestro',
+      opts: ['Integra alcance, calendario y presupuesto aprobados para controlar el proyecto', 'Es la lista de compras del proyecto', 'Es el reporte que se entrega al cerrar'], ans: 0,
+      why: [null, 'Las compras son solo una parte de los costos.', 'El reporte de cierre va al final; el plan maestro se hace antes de ejecutar.'],
       title: '¿Para qué sirve el plan maestro?',
-      ctx: 'Ya tienes los pasos. Ahora piensa en su función.',
-      que: 'elige la descripción correcta y presiona <b>Confirmar</b>.',
-      rec: 'El plan maestro vincula el plan de trabajo con las directrices del proyecto y fija las líneas base de alcance, tiempo y costo para controlarlo.',
-      ok: 'El plan maestro es la referencia para controlar: contra él se compara lo que realmente pasa.' },
+      ctx: 'Ya conoces sus pasos. Ahora piensa en su función.',
+      que: q,
+      rec: 'El plan maestro fija las líneas base de alcance, tiempo y costo para controlar el proyecto.',
+      ok: 'Contra el plan maestro se compara lo que realmente pasa.' },
 
-    { st: 2, type: 'sort', board: 'Alcance del proyecto',
-      zones: [{ id: 'in', t: '✅ Dentro del alcance' }, { id: 'out', t: '🚫 Fuera del alcance' }],
-      items: sc.scope,
+    { st: 2, vis: 'request', board: 'Petición del cliente',
+      opts: [inA[0].t, outA[0].t, inA[1].t], ans: 1,
+      why: ['Sí está dentro: ' + inA[0].w, null, 'Sí está dentro: ' + inA[1].w],
       title: 'Define el alcance',
-      ctx: 'Petición del cliente: ' + sc.request,
-      que: 'lee la petición del cliente y ' + dragQ,
-      rec: 'El alcance incluye solo lo que el cliente pidió. Lo que no está en la petición queda fuera, aunque parezca buena idea.',
-      ok: 'Alcance definido. Dejar por escrito lo que queda fuera evita malentendidos con el cliente.' },
-    { st: 2, type: 'mc', vis: 'scope', board: 'Alcance acordado',
-      opts: sc.obj, ans: sc.objAns, why: sc.objWhy,
+      ctx: 'Lee la petición del cliente en el tablero.',
+      que: '¿cuál actividad queda <b>fuera</b> del alcance? ' + q,
+      rec: 'El alcance incluye solo lo que el cliente pidió.',
+      ok: outA[0].w + ' Dejar por escrito lo que queda fuera evita malentendidos.' },
+    { st: 2, vis: 'scope', board: 'Alcance acordado',
+      opts: [sc.obj[sc.objAns], sc.obj[objWrong[0]], sc.obj[objWrong[1]]], ans: 0,
+      why: [null, sc.objWhy[objWrong[0]], sc.objWhy[objWrong[1]]],
       title: 'Redacta el objetivo',
       ctx: 'Con el alcance claro, el objetivo debe decir qué se entrega y cuándo.',
-      que: 'elige el objetivo mejor redactado (claro, medible y con fecha) y presiona <b>Confirmar</b>.',
-      rec: 'Un buen objetivo dice qué se entrega, con qué características y en cuánto tiempo. Si no se puede medir, no se puede controlar.',
-      ok: 'Objetivo claro, medible y con fecha: el cliente y el equipo saben exactamente qué se va a entregar.' },
+      que: '¿cuál objetivo está mejor redactado? ' + q,
+      rec: 'Un buen objetivo dice qué se entrega, con qué características y en cuánto tiempo.',
+      ok: 'Claro, medible y con fecha: todos saben qué se va a entregar.' },
 
-    { st: 3, type: 'order', board: 'Secuencia de actividades', acts: true,
-      items: sc.acts,
-      title: 'Ordena las actividades',
-      ctx: `Estas son las actividades de ${sc.short} con su duración. Algunas dependen de otras.`,
-      que: 'arrastra las actividades a los números en un orden lógico de ejecución y presiona <b>Confirmar</b>.',
-      rec: sc.ordRec,
-      ok: 'Secuencia lógica. Con ella ya se puede armar el calendario.' },
-    { st: 3, type: 'mc', vis: 'gantt', board: 'Calendario del proyecto',
-      opts: sc.dur, ans: sc.durAns, whyFn: 'dur',
+    { st: 3, vis: 'acts', board: 'Actividades del proyecto',
+      opts: [A[0].t, A[1].t, last.t], ans: 0,
+      why: [null, `Antes necesita «${actName(A[1].p[0])}».`, `Es lo último: depende de ${last.p.map(p => '«' + actName(p) + '»').join(' y ')}.`],
+      title: 'Ordena el arranque',
+      ctx: `Estas son las actividades de ${sc.short}. Algunas dependen de otras.`,
+      que: '¿con qué actividad <b>arranca</b> el proyecto? ' + q,
+      rec: 'La primera actividad es la que no depende de ninguna otra.',
+      ok: sc.ordRec.split('.')[0] + '.' },
+    { st: 3, vis: 'gantt', board: 'Calendario del proyecto',
+      opts: durOpts.map(n => n + ' semanas'), ans: 0, whyFn: 'dur',
       title: 'Lee el calendario',
       ctx: 'Algunas actividades se hacen al mismo tiempo.',
-      que: 'observa el calendario y elige en cuántas semanas termina el proyecto. Presiona <b>Confirmar</b>.',
-      rec: 'Las actividades que van en paralelo no se suman. Fíjate en qué semana termina la última barra.',
+      que: '¿en cuántas semanas termina el proyecto? ' + q,
+      rec: 'Las actividades en paralelo no se suman. Fíjate dónde termina la última barra.',
       ok: sc.durOk },
 
-    { st: 4, type: 'sort', board: 'Costos por categoría (ficticios)',
-      zones: CATS, items: sc.costs, money: true,
-      title: 'Clasifica los costos',
-      ctx: 'Estos son los costos estimados (ficticios) de ' + sc.short + '.',
-      que: 'arrastra cada costo a su categoría (o tócalo y después toca la categoría). Presiona <b>Confirmar</b>.',
-      rec: 'Mano de obra es el pago a personas; materiales es lo que se compra y se usa en el proyecto; servicios y trámites es lo que se contrata a terceros: fletes, permisos, renta de equipo o asesoría externa.',
-      ok: 'Costos clasificados. Así sabes en qué se va el dinero del proyecto.' },
-    { st: 4, type: 'mc', vis: 'costs', board: 'Presupuesto del proyecto',
-      opts: sc.tot, ans: sc.totAns, whyFn: 'tot',
+    { st: 4, vis: 'costs', board: 'Costos del proyecto (ficticios)',
+      opts: totOpts.map(money), ans: 0, whyFn: 'tot',
       title: 'Calcula el presupuesto',
-      ctx: 'Ya tienes el subtotal de cada categoría.',
-      que: 'suma los subtotales y elige el presupuesto total. Presiona <b>Confirmar</b>.',
-      rec: 'Suma los subtotales de mano de obra, materiales y servicios y trámites.',
-      ok: 'Presupuesto total calculado.' },
-    { st: 4, type: 'mc', vis: 'budget', board: 'Presupuesto contra dinero disponible',
-      opts: sc.bud, ans: sc.budAns, whyFn: 'bud',
+      ctx: 'Ya tienes los costos agrupados con su subtotal.',
+      que: '¿cuál es el presupuesto total? ' + q,
+      rec: 'Suma los subtotales de mano de obra, materiales y servicios.',
+      ok: `Presupuesto total: ${money(T)}.` },
+    { st: 4, vis: 'budget', board: 'Presupuesto contra dinero del cliente',
+      opts: [budTxt(diff), budTxt(-diff || 5000), budTxt(diff === 0 ? 10000 : 0)], ans: 0, whyFn: 'bud',
       title: 'Compáralo con el cliente',
       ctx: sc.budCtx,
-      que: 'elige la conclusión correcta y presiona <b>Confirmar</b>.',
+      que: '¿alcanza el dinero? ' + q,
       rec: 'Resta el presupuesto del proyecto al dinero disponible del cliente.',
       ok: sc.budOk }
-  ];
+  ].map(st => {
+    st.type = 'mc';
+    const o = shuffle(st.opts.map((t, i) => i));
+    st.opts = o.map(i => st.opts[i]);
+    if (st.why) st.why = o.map(i => st.why[i]);
+    st.ans = o.indexOf(st.ans);
+    return st;
+  });
 }
 
 /* ---------- ESTADO ---------- */
@@ -746,9 +756,18 @@ function schedule(acts) {
 }
 
 function vizFlow() {
-  const it = steps.find(x => x.st === 1 && x.type === 'order').items;
-  return `<div class="flow">${it.map((x, i) => `${i ? '<div class="farrow">▼</div>' : ''}<div class="fstep ${i === it.length - 1 ? 'last' : ''}"><span class="n">${i + 1}</span>${x.t}${i === it.length - 1 ? ' = línea base' : ''}</div>`).join('')}</div>
-  <div class="cap">Alcance + calendario + presupuesto aprobados por el cliente</div>`;
+  const it = ['Acordar alcance y objetivos con el cliente', 'Desglosar el trabajo en actividades', 'Elaborar el calendario', 'Estimar costos y presupuesto', 'Integrar y aprobar el plan maestro'];
+  const hide = idx === steps.findIndex(x => x.vis === 'flow') && !solved;
+  return `<div class="flow">${it.map((x, i) => `${i ? '<div class="farrow">▼</div>' : ''}<div class="fstep ${i === it.length - 1 ? 'last' : ''}"><span class="n">${i + 1}</span>${hide && i === 0 ? '❓ ¿Qué va primero?' : x}</div>`).join('')}</div>
+  <div class="cap">Alcance + calendario + presupuesto aprobados = línea base</div>`;
+}
+function vizPlan() {
+  const t = [['🎯', 'Objetivos medibles'], ['👤', 'Responsables'], ['📅', 'Fechas'], ['💰', 'Recursos y costos'], ['🔄', 'Seguimiento']];
+  return `<div class="ptiles">${t.map(([e, x]) => `<div class="pt"><span>${e}</span>${x}</div>`).join('')}</div><div class="cap">Un plan de trabajo sirve para <b>dar seguimiento</b> al proyecto</div>`;
+}
+function vizRequest() { return `<div class="req" style="font-size:14px;padding:14px 16px">📝 ${sc.request}</div><div class="cap">Lo que no esté en la petición queda fuera del alcance</div>`; }
+function vizActs() {
+  return `<div class="alist">${sc.acts.map(a => `<div class="ai"><b>${a.t}</b><span>${a.d} sem${a.p.length ? ' · después de: ' + a.p.map(p => sc.acts.find(x => x.id === p).t).join(', ') : ' · no depende de ninguna'}</span></div>`).join('')}</div>`;
 }
 function vizScope() {
   const li = z => sc.scope.filter(x => x.z === z).map(x => `<li>${x.t}</li>`).join('');
@@ -806,7 +825,7 @@ function boardHTML(s) {
   if (s.type === 'order') {
     return `<div class="slots">${slots.map((id, i) => `<div class="slot" data-i="${i}"><span class="num">${i + 1}</span>${id ? cardHTML(id) : '<span class="ph">Suelta aquí</span>'}</div>`).join('')}</div>`;
   }
-  return { flow: vizFlow, scope: vizScope, gantt: vizGantt, costs: vizCosts, budget: vizBudget }[s.vis]();
+  return { plan: vizPlan, flow: vizFlow, request: vizRequest, scope: vizScope, acts: vizActs, gantt: vizGantt, costs: vizCosts, budget: vizBudget }[s.vis]();
 }
 
 /* ---------- RENDER ---------- */
@@ -968,7 +987,7 @@ function startTimer() {
 
 /* ---------- INICIO ---------- */
 $('#scs').innerHTML = Object.entries(SC).map(([k, v]) => `<button class="sc" data-k="${k}"><span class="e">${v.emoji}</span><div><b>${v.name}</b><span>${v.sub}</span></div></button>`).join('');
-function canStart() { $('#btnStart').disabled = !(scKey && $('#nameIn').value.trim().length >= 2); }
+function canStart() { $('#btnStart').classList.toggle('ready', !!(scKey && $('#nameIn').value.trim().length >= 2)); if (scKey && $('#nameIn').value.trim().length >= 2) $('#startFb').innerHTML = ''; }
 $('#scs').onclick = e => {
   const b = e.target.closest('.sc'); if (!b) return;
   scKey = b.dataset.k; sfx.click();
@@ -976,7 +995,7 @@ $('#scs').onclick = e => {
   canStart();
 };
 $('#nameIn').addEventListener('input', canStart);
-$('#nameIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#btnStart').disabled) $('#btnStart').click(); });
+$('#nameIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnStart').click(); });
 function startGame() {
   sc = SC[scKey]; steps = buildSteps(sc);
   idx = 0; solved = false; tries = 0; firstOk = 0;
@@ -984,7 +1003,13 @@ function startGame() {
   render(); startTimer();
 }
 $('#btnStart').onclick = () => {
-  playerName = $('#nameIn').value.trim();
+  const nm = $('#nameIn').value.trim();
+  if (!scKey || nm.length < 2) {
+    sfx.bad();
+    $('#startFb').innerHTML = `<span class="bad">✖ Revisa tu respuesta.</span><span class="rec">Recuerda: ${!scKey ? 'toca uno de los tres escenarios para elegirlo' : ''}${!scKey && nm.length < 2 ? ' y ' : ''}${nm.length < 2 ? 'escribe tu nombre' : ''}.</span>`;
+    return;
+  }
+  playerName = nm;
   $('#introOv').classList.remove('show');
   sfx.stage(); startGame();
 };
