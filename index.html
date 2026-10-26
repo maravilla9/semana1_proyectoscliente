@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arma tu plan de trabajo | Semana 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ind:#4100BE; --ind2:#2B0085; --blue:#1F5BFF; --sky:#3FA9FF; --gold:#FFC83D;
+  --ink:#1B1640; --mut:#6B6890; --bg:#F3F1FF; --card:#fff; --ok:#1E6FE8; --err:#D62D4B; --line:#DCD6F6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:linear-gradient(100deg,var(--ind2),var(--ind) 55%,var(--blue));color:#fff;padding:8px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .u{font-size:27px;font-weight:800;letter-spacing:-1px;line-height:1}
+.logo .sep{width:1px;height:28px;background:rgba(255,255,255,.6)}
+.logo .ec{font-size:11px;line-height:1.05;font-weight:500}
+.logo .ec b{display:block;font-size:15px;font-weight:800}
+.htitle{flex:1;min-width:210px}
+.htitle h1{font-size:18px;font-weight:700;line-height:1.2}
+.htitle p{font-size:11.5px;opacity:.88}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.hright{display:flex;align-items:center;gap:8px}
+.timer{background:#fff;color:var(--ind);font-weight:700;padding:4px 12px;border-radius:20px;font-size:14px;min-width:84px;text-align:center}
+.icon-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px}
+
+/* PROGRESS */
+.progress-wrap{background:#fff;padding:7px 18px 8px;border-bottom:1px solid var(--line)}
+.stages{display:flex;gap:8px;margin-bottom:6px}
+.stage{flex:1;font-size:11.5px;font-weight:600;color:var(--mut);display:flex;align-items:center;gap:6px;min-width:0}
+.stage span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage .n{width:21px;height:21px;border-radius:50%;background:var(--line);color:var(--ind2);display:grid;place-items:center;font-size:11px;flex:none;transition:.3s}
+.stage.on{color:var(--ind)} .stage.on .n{background:var(--ind);color:#fff;box-shadow:0 0 0 4px rgba(65,0,190,.15)}
+.stage.done .n{background:var(--blue);color:#fff}
+.bar{height:8px;background:#E8E4FA;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ind),var(--sky));transition:width .5s}
+
+/* MAIN */
+main{flex:1;display:grid;grid-template-columns:minmax(330px,1fr) 1.35fr;gap:14px;padding:12px 18px 4px;min-height:0}
+.panel{background:var(--card);border-radius:16px;box-shadow:0 6px 24px rgba(65,0,190,.08);padding:15px 18px;display:flex;flex-direction:column;min-height:0;overflow:auto}
+.etapa{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px}
+.qtitle{font-size:18px;font-weight:700;margin:2px 0 4px;line-height:1.3;color:var(--ind2)}
+.ctx{font-size:12.5px;color:var(--mut);margin-bottom:8px;line-height:1.45}
+.ctx b{color:var(--ink)}
+.que{background:#EEF3FF;border-left:4px solid var(--blue);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px;line-height:1.45}
+.que b{color:var(--ind)}
+.opts{display:grid;gap:7px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:11px;padding:9px 12px;text-align:left;font:inherit;font-size:13.5px;cursor:pointer;transition:.15s;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--sky);transform:translateX(2px)}
+.opt.sel{border-color:var(--ind);background:#F1ECFF;font-weight:600}
+.opt.right{border-color:var(--ok);background:#E7F1FF;font-weight:600}
+.opt:disabled{cursor:default}
+.fb{margin-top:10px;min-height:22px;font-size:13.5px;scroll-margin-bottom:90px}
+.panel,.card,.zone,.slot,.pool{-webkit-user-select:none;user-select:none}
+.card{-webkit-user-drag:none}
+.fb .bad{color:var(--err);font-weight:700}
+.fb .good{color:var(--ok);font-weight:700}
+.fb .exp{display:block;color:var(--ink);font-size:12.5px;margin-top:2px}
+.fb .rec{display:block;font-style:italic;color:#7A7896;font-size:12.5px;margin-top:3px}
+.actions{margin-top:auto;padding-top:12px;display:flex;gap:8px;flex-wrap:wrap;background:#fff;border-top:1px solid #F0EDFB;margin-top:8px}
+.panel.left{overflow:hidden}
+.scroll{flex:1;min-height:0;overflow:auto;padding-right:4px}
+.btn.ready{animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(65,0,190,.45)}50%{box-shadow:0 0 0 8px rgba(65,0,190,0)}}
+.tips{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px}
+.tips li{background:#FFF4F6;border-left:3px solid var(--err);border-radius:8px;padding:5px 9px;font-size:12px;line-height:1.4;color:var(--ink)}
+.tips li b{color:var(--err)}
+.tips li i{color:#5B5878}
+.btn{border:none;border-radius:11px;padding:10px 18px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
+.btn.pri{background:var(--ind);color:#fff}
+.btn.sec{background:linear-gradient(90deg,var(--blue),var(--sky));color:#fff}
+.btn.gh{background:#EEEAFB;color:var(--ind)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+footer{text-align:center;font-size:12px;color:#7A7896;font-style:italic;padding:4px 0 8px}
+
+/* POOL Y TARJETAS */
+.poolLab{font-size:11.5px;font-weight:700;color:var(--mut);margin-bottom:4px}
+.pool{display:flex;flex-wrap:wrap;gap:6px;min-height:46px;border:2px dashed var(--line);border-radius:12px;padding:8px;align-content:flex-start;transition:.15s}
+.pool.over{border-color:var(--blue);background:#EEF3FF}
+.pool .done{font-size:12.5px;color:var(--ok);font-weight:600;padding:4px}
+.card{background:#fff;border:2px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:600;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 2px 6px rgba(65,0,190,.08);color:var(--ink);line-height:1.3;transition:border-color .15s,background .15s}
+.card:hover{border-color:var(--sky)}
+.card small{color:var(--blue);font-weight:700;margin-left:4px;white-space:nowrap}
+.card.pick{border-color:var(--ind);background:#F1ECFF;box-shadow:0 0 0 3px rgba(65,0,190,.18)}
+.card.wrong{border-color:var(--err);background:#FFEFF2}
+.card.ok{border-color:var(--ok);background:#E7F1FF;cursor:default}
+.card.ok:after{content:" ✓";color:var(--ok);font-weight:800}
+.card.lift{opacity:.3}
+.ghost{position:fixed;pointer-events:none;z-index:60;opacity:.95;transform:rotate(-2deg) scale(1.04);box-shadow:0 12px 28px rgba(43,0,133,.3);border-color:var(--ind);margin:0}
+
+/* TABLERO */
+.board{display:flex;flex-direction:column;min-height:0}
+.bhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.bhead h2{font-size:13.5px;color:var(--ind2);font-weight:700}
+.chip{background:var(--ind);color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+.check{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ck{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:#EEEAFB;color:var(--mut);transition:.3s}
+.ck.on{background:var(--ind);color:#fff}
+.ck.done{background:#E7F1FF;color:var(--ok)}
+#bview{flex:1;min-height:0;overflow:auto}
+.zones{display:grid;gap:10px;height:100%}
+.zones.z2{grid-template-columns:1fr 1fr}
+.zones.z3{grid-template-columns:1fr 1fr 1fr}
+.zone{border:2px dashed #C9C0F0;border-radius:14px;padding:8px;background:#FAF9FF;display:flex;flex-direction:column;gap:6px;min-height:150px;transition:.15s;cursor:pointer}
+.zone h3{font-size:12.5px;color:var(--ind2);font-weight:700;text-align:center;padding:2px 0 4px;border-bottom:1px solid var(--line)}
+.zone .ph,.slot .ph{font-size:11.5px;color:#B5AEDC;text-align:center;margin:auto 0;font-weight:500}
+.zone.over,.slot.over{border-color:var(--blue);background:#EEF3FF;border-style:solid}
+.slots{display:flex;flex-direction:column;gap:7px}
+.slot{display:flex;align-items:center;gap:8px;border:2px dashed #C9C0F0;border-radius:12px;padding:5px 8px;min-height:42px;background:#FAF9FF;cursor:pointer;transition:.15s}
+.slot .num{width:24px;height:24px;border-radius:50%;background:var(--ind);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.slot .card{flex:1}
+.slot .ph{flex:1;text-align:left}
+
+/* VISUALES */
+.cap{font-size:12px;color:var(--mut);font-weight:600;text-align:center;margin-top:8px}
+.cap b{color:var(--ind)}
+.flow{display:flex;flex-direction:column;gap:4px;align-items:stretch;max-width:430px;margin:0 auto}
+.fstep{background:linear-gradient(90deg,var(--ind),var(--blue));color:#fff;border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:600;display:flex;gap:8px;align-items:center}
+.fstep .n{background:rgba(255,255,255,.25);width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none}
+.fstep.last{background:linear-gradient(90deg,var(--ind2),var(--ind));box-shadow:0 0 0 3px var(--gold)}
+.farrow{text-align:center;color:#B9AEEA;font-size:14px;line-height:1}
+.req{background:#F6F3FF;border-radius:12px;padding:9px 12px;font-size:12.5px;line-height:1.45;margin-bottom:8px;border-left:4px solid var(--ind)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.col{border-radius:12px;padding:8px 10px;font-size:12px}
+.col h4{font-size:12px;margin-bottom:4px}
+.col ul{margin-left:16px;line-height:1.5}
+.col.in{background:#E7F1FF;color:#123E9A}
+.col.out{background:#FFF0F3;color:#8E1C33}
+.gantt{display:grid;gap:3px 2px;align-items:center;font-size:11.5px}
+.gantt .gh{font-size:10.5px;font-weight:700;color:var(--mut);text-align:center;padding:2px 0;border-radius:6px}
+.gantt .gh.end{background:var(--gold);color:var(--ind2)}
+.gantt .gl{font-weight:600;padding-right:6px;line-height:1.2}
+.gantt .gl small{color:var(--blue);font-weight:700}
+.gantt .gc{height:28px;background:#F4F1FF;border-radius:4px}
+.gantt .gb{height:22px;border-radius:7px;background:linear-gradient(90deg,var(--ind),var(--sky));z-index:1;box-shadow:0 2px 6px rgba(65,0,190,.25)}
+.costs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cat{background:#FAF9FF;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:11.5px;display:flex;flex-direction:column}
+.cat h4{font-size:12px;color:var(--ind2);margin-bottom:4px}
+.cat .r{display:flex;justify-content:space-between;gap:6px;padding:2px 0;border-bottom:1px dotted var(--line)}
+.cat .r b{white-space:nowrap}
+.cat .sub{margin-top:auto;padding-top:5px;font-weight:800;color:var(--ind);display:flex;justify-content:space-between}
+.total{margin-top:10px;background:linear-gradient(90deg,var(--ind2),var(--ind));color:#fff;border-radius:12px;padding:9px 14px;display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.total b{color:var(--gold);font-size:16px}
+.bud{display:flex;flex-direction:column;gap:14px;padding:10px 4px}
+.bud .lab{font-size:12.5px;font-weight:700;margin-bottom:4px}
+.bud .trk{height:34px;background:#EEEAFB;border-radius:9px;overflow:hidden}
+.bud .fill{height:100%;border-radius:9px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-weight:800;font-size:13px;transition:width .9s ease;width:0}
+.note{font-size:11px;color:var(--mut);font-style:italic;text-align:right;margin-top:6px}
+
+/* TOAST */
+.toast{position:fixed;left:50%;top:84px;transform:translate(-50%,-20px);background:var(--ind2);color:#fff;padding:9px 20px;border-radius:30px;font-weight:700;font-size:14px;opacity:0;transition:.4s;z-index:40;box-shadow:0 10px 30px rgba(43,0,133,.35);pointer-events:none;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(27,22,64,.6);display:none;place-items:center;z-index:20;padding:14px;backdrop-filter:blur(3px)}
+.overlay.show{display:grid}
+.modal{background:#fff;border-radius:20px;max-width:620px;width:100%;padding:20px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:96vh;overflow:auto;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{color:var(--ind2);font-size:22px;line-height:1.25;margin-bottom:6px}
+.modal .tag{display:inline-block;background:#EEF3FF;color:var(--blue);font-weight:700;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.modal p{font-size:13.5px;line-height:1.5;margin-bottom:8px}
+.modal input{width:100%;border:2px solid var(--line);border-radius:11px;padding:10px 12px;font:inherit;font-size:14px;margin:2px 0 10px}
+.modal input:focus{outline:none;border-color:var(--ind)}
+.scs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sc{border:2px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;background:#fff;font:inherit;color:var(--ink);transition:.15s}
+.sc:hover{border-color:var(--sky);transform:translateY(-2px)}
+.sc .e{font-size:30px;line-height:1.1}
+.sc b{display:block;font-size:13.5px;margin-top:2px}
+.sc span{display:block;font-size:11px;color:var(--mut);line-height:1.35;margin-top:2px}
+.sc.sel{border-color:var(--ind);background:#F1ECFF;box-shadow:0 0 0 3px rgba(65,0,190,.15)}
+.lbl{font-size:12px;font-weight:700;color:var(--ind2);margin-bottom:3px}
+
+/* CERT */
+.cert{border-radius:16px;padding:20px;background:linear-gradient(135deg,var(--ind2),var(--ind) 55%,var(--blue));color:#fff;text-align:center;position:relative;overflow:hidden}
+.cert:before{content:"";position:absolute;inset:8px;border:2px solid rgba(255,255,255,.35);border-radius:12px;pointer-events:none}
+.cert .clogo{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:6px}
+.cert .clogo .u{font-size:24px;font-weight:800;letter-spacing:-1px}
+.cert .clogo .sep{width:1px;height:22px;background:rgba(255,255,255,.6)}
+.cert .clogo .ec{font-size:10px;line-height:1.05;text-align:left}
+.cert .clogo .ec b{display:block;font-size:13px}
+.cert .k{font-size:12px;letter-spacing:2px;color:#BFD9FF;font-weight:700}
+.cert .medal{font-size:40px;line-height:1.1;margin:4px 0}
+.cert .n{font-size:24px;font-weight:800;margin:2px 0 4px;word-break:break-word}
+.cert p{font-size:13px;margin-bottom:10px;opacity:.95}
+.cert .stats{display:flex;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+.cert .stats div{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;min-width:92px}
+.cert .stats b{display:block;font-size:17px}
+.cert .stats span{font-size:10.5px;opacity:.85}
+.cert .f{font-size:11.5px;opacity:.9}
+.share{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.share button{border:none;border-radius:10px;padding:9px 6px;font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;color:#fff}
+.s-wa{background:#1FAF55}.s-fb{background:#1877F2}.s-x{background:#111}.s-cp{background:#6B6890}.s-st{background:linear-gradient(90deg,var(--ind),var(--sky));grid-column:span 2}
+.replay{width:100%;margin-top:8px}
+
+/* RESPONSIVE */
+@media (min-width:861px){ body{height:100vh;overflow:hidden} }
+@media (min-width:861px) and (max-height:640px){ body{height:auto;overflow:auto} main{min-height:600px} }
+@media (max-width:860px){
+  header{padding:8px 12px;gap:8px}
+  .htitle h1{font-size:15.5px}
+  .progress-wrap{padding:6px 12px}
+  .stage span.t{display:none}
+  .stage{justify-content:center}
+  html,body{height:auto}
+  body{padding-bottom:66px}
+  main{grid-template-columns:1fr;padding:10px 12px 4px;flex:none}
+  .panel,.panel.left,.scroll{overflow:visible;min-height:auto}
+  #bview{overflow:visible;flex:none}
+  .zones{height:auto}
+  .zones.z2,.zones.z3{grid-template-columns:1fr}
+  .zone{min-height:90px}
+  .costs{grid-template-columns:1fr}
+  .actions{position:fixed;left:0;right:0;bottom:0;margin:0;padding:9px 12px;z-index:15;box-shadow:0 -6px 20px rgba(43,0,133,.12)}
+  .actions .btn{flex:1}
+  .scs{grid-template-columns:1fr}
+  .sc{display:flex;align-items:center;gap:10px;text-align:left}
+  .sc .e{font-size:26px}
+  .share{grid-template-columns:repeat(2,1fr)}
+  .s-st{grid-column:span 2}
+}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="u">utel</span><span class="sep"></span><span class="ec">educación<b>continua</b></span></div>
+  <div class="htitle">
+    <h1>📋 Arma tu plan de trabajo</h1>
+    <p>Diplomado en Administración de Proyectos · Módulo 3. Planificación de los proyectos enfocados al cliente</p>
+  </div>
+  <div class="badges"><span class="badge">Actividad recreativa</span><span class="badge">Semana 1</span></div>
+  <div class="hright">
+    <span class="timer" id="timer">⏱ 00:00</span>
+    <button class="icon-btn" id="mute" title="Sonido">🔊</button>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="stages" id="stages"></div>
+  <div class="bar"><i id="bar"></i></div>
+</div>
+
+<main>
+  <section class="panel left">
+   <div class="scroll">
+    <div class="etapa" id="etapa"></div>
+    <div class="qtitle" id="qtitle"></div>
+    <div class="ctx" id="ctx"></div>
+    <div class="que" id="que"></div>
+    <div id="opts"></div>
+    <div class="fb" id="fb"></div>
+   </div>
+    <div class="actions">
+      <button class="btn pri" id="btnOk">Confirmar</button>
+      <button class="btn sec" id="btnNext">Siguiente ➜</button>
+    </div>
+  </section>
+  <section class="panel board">
+    <div class="bhead"><h2 id="bTitle"></h2><span class="chip" id="scChip"></span></div>
+    <div class="check" id="check"></div>
+    <div id="bview"></div>
+  </section>
+</main>
+
+<footer>Docente: Dr. Armando Maravilla</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- INTRO -->
+<div class="overlay show" id="introOv">
+  <div class="modal">
+    <span class="tag">Desafío en clase · Semana 1</span>
+    <h2>📋 Arma tu plan de trabajo</h2>
+    <p>Un cliente te contrata y antes de arrancar necesitas un <b>plan de trabajo</b>: qué se va a hacer, en cuánto tiempo y cuánto va a costar. Elige un escenario y arma el plan en 5 etapas: <b>características del plan, plan maestro, alcance, calendario y costos</b>.</p>
+    <div class="lbl">1. Elige tu escenario</div>
+    <div class="scs" id="scs"></div>
+    <div class="lbl">2. Escribe tu nombre</div>
+    <input id="nameIn" maxlength="40" placeholder="Tu nombre como aparecerá en tu certificado" autocomplete="name">
+    <div class="que">👉 <b>Qué hacer:</b> elige un escenario, escribe tu nombre y presiona <b>Comenzar</b>.</div>
+    <button class="btn pri" id="btnStart" disabled style="width:100%">Comenzar ➜</button>
+  </div>
+</div>
+
+<!-- CERTIFICADO -->
+<div class="overlay" id="certOv">
+  <div class="modal">
+    <div class="cert" id="cert">
+      <div class="clogo"><span class="u">utel</span><span class="sep"></span><span class="ec">educación<b>continua</b></span></div>
+      <div class="k">CERTIFICADO DE LOGRO</div>
+      <div class="medal" id="cMedal">🏆</div>
+      <div class="n" id="cName"></div>
+      <p>completó el desafío <b>Arma tu plan de trabajo</b><br><span id="cSc"></span></p>
+      <div class="stats">
+        <div><b id="cScore"></b><span>aciertos a la primera</span></div>
+        <div><b id="cTime"></b><span>tiempo</span></div>
+        <div><b id="cDate"></b><span>fecha</span></div>
+      </div>
+      <div class="f">Diplomado en Administración de Proyectos<br>Módulo 3. Planificación de los proyectos enfocados al cliente · Semana 1<br><i>Docente: Dr. Armando Maravilla</i></div>
+    </div>
+    <div class="que" style="margin-top:12px;margin-bottom:0">👉 <b>Qué hacer:</b> comparte tu logro o descarga la imagen para tus historias.</div>
+    <div class="share">
+      <button class="s-wa" id="shWa">WhatsApp</button>
+      <button class="s-fb" id="shFb">Facebook</button>
+      <button class="s-x" id="shX">X</button>
+      <button class="s-cp" id="shCp">Copiar</button>
+      <button class="s-st" id="shSt">📲 Imagen para historias</button>
+    </div>
+    <button class="btn gh replay" id="btnReplay">↺ Jugar otro escenario</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const $ = s => document.querySelector(s);
+const STAGES = ['Características', 'Plan maestro', 'Alcance', 'Calendario', 'Costos'];
+const money = n => '$' + n.toLocaleString('es-MX');
+
+/* ---------- SONIDO ---------- */
+let ac = null, muted = false;
+function tone(f, d, type = 'sine', t0 = 0, vol = .12) {
+  if (muted) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = f;
+    const t = ac.currentTime + t0;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(ac.destination);
+    o.start(t); o.stop(t + d + .03);
+  } catch (e) {}
+}
+const sfx = {
+  click: () => tone(640, .06, 'triangle', 0, .06),
+  drop: () => { tone(520, .06, 'triangle', 0, .07); tone(780, .08, 'triangle', .05, .06); },
+  ok: () => { tone(523, .12); tone(659, .12, 'sine', .1); tone(784, .22, 'sine', .2); },
+  bad: () => { tone(190, .28, 'sawtooth', 0, .07); },
+  stage: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'triangle', i * .1, .1)); },
+  win: () => { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .24, 'triangle', i * .13, .12)); }
+};
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; };
+
+/* ---------- CONFETI ---------- */
+const cv = $('#confetti'), cx = cv.getContext('2d');
+let parts = [], anim = false;
+function resizeCv() { cv.width = innerWidth; cv.height = innerHeight; }
+addEventListener('resize', resizeCv); resizeCv();
+function confetti(n = 120, y = .35) {
+  const cols = ['#4100BE', '#1F5BFF', '#3FA9FF', '#8A5CFF', '#FFFFFF', '#FFC83D'];
+  for (let i = 0; i < n; i++) parts.push({
+    x: innerWidth / 2 + (Math.random() - .5) * 260, y: innerHeight * y,
+    vx: (Math.random() - .5) * 15, vy: Math.random() * -13 - 4,
+    s: Math.random() * 7 + 5, c: cols[i % cols.length], r: Math.random() * 6, vr: (Math.random() - .5) * .3, life: 0
+  });
+  if (!anim) loop();
+}
+function loop() {
+  anim = true;
+  cx.clearRect(0, 0, cv.width, cv.height);
+  parts.forEach(p => {
+    p.vy += .35; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += p.vr; p.life++;
+    cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c;
+    cx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .6); cx.restore();
+  });
+  parts = parts.filter(p => p.y < cv.height + 40 && p.life < 280);
+  if (parts.length) requestAnimationFrame(loop); else { anim = false; cx.clearRect(0, 0, cv.width, cv.height); }
+}
+
+/* ---------- TOAST ---------- */
+function toast(t) {
+  const el = $('#toast'); el.textContent = t; el.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ---------- ESCENARIOS (datos y costos ficticios) ---------- */
+const SC = {
+  cons: {
+    emoji: '🏗️', name: 'Construcción', sub: 'Ampliación de una casa', short: 'la obra',
+    request: 'La familia Ramírez contrata a tu constructora para hacer una <b>recámara de 4 x 4 m con baño completo</b> en la planta baja, con <b>acabados básicos</b>, en <b>10 semanas</b>.',
+    scope: [
+      { id: 'a1', t: 'Cimentación y muros de la recámara', z: 'in', w: 'La recámara es justo lo que pidió el cliente.' },
+      { id: 'a2', t: 'Instalación eléctrica e hidráulica del baño', z: 'in', w: 'El baño completo está en la petición.' },
+      { id: 'a3', t: 'Muebles de baño y azulejo', z: 'in', w: 'Un baño completo incluye sus muebles y acabados.' },
+      { id: 'a4', t: 'Piso, aplanado y pintura de la recámara', z: 'in', w: 'Los acabados básicos son parte de lo pedido.' },
+      { id: 'a5', t: 'Remodelar la cocina', z: 'out', w: 'El cliente no mencionó la cocina.' },
+      { id: 'a6', t: 'Construir un segundo piso', z: 'out', w: 'La petición es en planta baja; un segundo piso sería otro proyecto.' },
+      { id: 'a7', t: 'Amueblar la recámara', z: 'out', w: 'Se pidió construir, no amueblar.' }
+    ],
+    obj: ['Hacer una recámara bonita lo antes posible',
+      'Construir una recámara de 4 x 4 m con baño completo y acabados básicos en planta baja, en 10 semanas y sin rebasar el presupuesto aprobado',
+      'Mejorar la casa de la familia Ramírez',
+      'Construir todo lo que la familia vaya pidiendo durante la obra'], objAns: 1, objWhy: ["No es medible: ¿qué es bonita y cuándo es pronto?", null, "Es muy general: no dice qué se entrega ni cuándo.", "No tiene límite: así el alcance crece sin control."],
+    acts: [
+      { id: 'A', t: 'Permiso y compra de materiales', d: 1, p: [] },
+      { id: 'B', t: 'Cimentación', d: 2, p: ['A'] },
+      { id: 'C', t: 'Muros y losa', d: 3, p: ['B'] },
+      { id: 'D', t: 'Instalaciones eléctrica e hidráulica', d: 2, p: ['C'] },
+      { id: 'E', t: 'Colocar puerta y ventana', d: 1, p: ['C'] },
+      { id: 'F', t: 'Acabados: piso, aplanado y pintura', d: 2, p: ['D', 'E'] }
+    ],
+    ordRec: 'No puedes levantar muros sin cimentación ni hacer acabados antes de las instalaciones. Revisa qué tiene que estar listo antes de cada actividad.',
+    dur: ['8 semanas', '10 semanas', '11 semanas', '12 semanas'], durAns: 1,
+    durOk: '10 semanas: la puerta y la ventana se colocan al mismo tiempo que las instalaciones, por eso no suman tiempo.',
+    costs: [
+      { id: 'c1', t: 'Albañil y ayudante', a: 48000, z: 'mo' },
+      { id: 'c2', t: 'Electricista y plomero', a: 12000, z: 'mo' },
+      { id: 'c3', t: 'Cemento, varilla y block', a: 38000, z: 'mat' },
+      { id: 'c4', t: 'Muebles de baño y azulejo', a: 15000, z: 'mat' },
+      { id: 'c5', t: 'Puerta y ventana', a: 9000, z: 'mat' },
+      { id: 'c6', t: 'Permiso de construcción', a: 3000, z: 'srv' },
+      { id: 'c7', t: 'Renta de revolvedora y flete', a: 5000, z: 'srv' }
+    ],
+    tot: ['$120,000', '$125,000', '$130,000', '$140,000'], totAns: 2,
+    budget: 140000, budCtx: 'La familia Ramírez tiene <b>$140,000</b> para la obra.',
+    bud: ['Sí alcanza y sobran $10,000', 'No alcanza, faltan $10,000', 'Alcanza exacto', 'Sí alcanza y sobran $20,000'], budAns: 0,
+    budOk: 'Sobran $10,000. El presupuesto se aprueba y queda como línea base de costos.'
+  },
+  mud: {
+    emoji: '🏠', name: 'Mudanza', sub: 'Inmobiliaria: cambio de casa', short: 'la mudanza',
+    request: 'Laura y su familia se cambian de Morelia a Querétaro por trabajo. Contratan a tu inmobiliaria para <b>encontrar una casa en renta de 3 recámaras</b>, <b>coordinar la mudanza</b> y dejar la casa con <b>luz, agua e internet</b>, todo en <b>6 semanas</b>.',
+    scope: [
+      { id: 'a1', t: 'Buscar y mostrar casas en renta de 3 recámaras', z: 'in', w: 'Encontrar la casa es lo principal de la petición.' },
+      { id: 'a2', t: 'Revisar y firmar el contrato de arrendamiento', z: 'in', w: 'Sin contrato no hay casa en renta.' },
+      { id: 'a3', t: 'Contratar y coordinar el camión de mudanza', z: 'in', w: 'Coordinar la mudanza está en la petición.' },
+      { id: 'a4', t: 'Gestionar la conexión de luz, agua e internet', z: 'in', w: 'El cliente pidió dejar la casa con servicios.' },
+      { id: 'a5', t: 'Vender la casa que tienen en Morelia', z: 'out', w: 'El cliente no pidió vender su casa en Morelia.' },
+      { id: 'a6', t: 'Remodelar la cocina de la nueva casa', z: 'out', w: 'Remodelar no forma parte de lo acordado.' },
+      { id: 'a7', t: 'Inscribir a los hijos en una escuela', z: 'out', w: 'La escuela no está en la petición.' }
+    ],
+    obj: ['Ayudar a Laura con su cambio de ciudad',
+      'Encontrar la mejor casa de Querétaro sin importar el tiempo',
+      'Hacer todo lo que la familia necesite para instalarse',
+      'Entregar a la familia una casa en renta de 3 recámaras en Querétaro, con servicios conectados y la mudanza terminada, en 6 semanas'], objAns: 3, objWhy: ["Es muy general: no dice qué se entrega ni en cuánto tiempo.", "No tiene fecha y \"la mejor\" no se puede medir.", "No tiene límite: así el alcance crece sin control.", null],
+    acts: [
+      { id: 'A', t: 'Entrevista con la familia para definir necesidades', d: 1, p: [] },
+      { id: 'B', t: 'Buscar y visitar casas', d: 2, p: ['A'] },
+      { id: 'C', t: 'Firmar el contrato de arrendamiento', d: 1, p: ['B'] },
+      { id: 'D', t: 'Cotizar y contratar la mudanza', d: 1, p: ['A'] },
+      { id: 'E', t: 'Conectar luz, agua e internet', d: 1, p: ['C'] },
+      { id: 'F', t: 'Día de la mudanza y entrega de llaves', d: 1, p: ['C', 'D', 'E'] }
+    ],
+    ordRec: 'No se firma un contrato sin haber visitado casas, ni se muda la familia antes de tener contrato y servicios. Revisa qué tiene que estar listo antes de cada actividad.',
+    dur: ['5 semanas', '6 semanas', '7 semanas', '8 semanas'], durAns: 1,
+    durOk: '6 semanas: la mudanza se contrata mientras se buscan casas, por eso no suma tiempo.',
+    costs: [
+      { id: 'c1', t: 'Honorarios del asesor inmobiliario', a: 9000, z: 'mo' },
+      { id: 'c2', t: 'Cuadrilla de carga y empaque', a: 6000, z: 'mo' },
+      { id: 'c3', t: 'Cajas y cinta de empaque', a: 2500, z: 'mat' },
+      { id: 'c4', t: 'Plástico burbuja y cobijas', a: 1500, z: 'mat' },
+      { id: 'c5', t: 'Camión de mudanza Morelia a Querétaro', a: 14000, z: 'srv' },
+      { id: 'c6', t: 'Póliza jurídica de arrendamiento', a: 4000, z: 'srv' },
+      { id: 'c7', t: 'Instalación de internet', a: 1000, z: 'srv' }
+    ],
+    tot: ['$33,000', '$36,000', '$38,000', '$41,000'], totAns: 2,
+    budget: 35000, budCtx: 'La familia de Laura tiene <b>$35,000</b> para todo el cambio.',
+    bud: ['Sí alcanza y sobran $3,000', 'No alcanza, faltan $3,000', 'Alcanza exacto', 'No alcanza, faltan $13,000'], budAns: 1,
+    budOk: 'Faltan $3,000. Hay que revisar el plan con el cliente antes de arrancar, no a mitad del proyecto.'
+  },
+  exp: {
+    emoji: '📦', name: 'Exportación', sub: 'Tu producto a Canadá', short: 'la exportación',
+    request: 'Produces una salsa artesanal y un distribuidor de Toronto, Canadá, te pidió un primer envío de <b>500 frascos</b>. Debes entregarlo en <b>su almacén</b> en <b>8 semanas</b>.',
+    scope: [
+      { id: 'a1', t: 'Producir los 500 frascos', z: 'in', w: 'El pedido es de 500 frascos.' },
+      { id: 'a2', t: 'Etiquetado en inglés y francés', z: 'in', w: 'En Canadá la etiqueta de alimentos va en sus dos idiomas oficiales.' },
+      { id: 'a3', t: 'Trámite aduanal de exportación', z: 'in', w: 'Sin trámite aduanal el producto no sale del país.' },
+      { id: 'a4', t: 'Flete hasta el almacén en Toronto', z: 'in', w: 'La entrega es en el almacén del distribuidor.' },
+      { id: 'a5', t: 'Abrir una tienda propia en Canadá', z: 'out', w: 'El pedido es un envío, no abrir una tienda.' },
+      { id: 'a6', t: 'Crear una nueva línea de salsas', z: 'out', w: 'Una nueva línea de salsas sería otro proyecto.' },
+      { id: 'a7', t: 'Campaña de publicidad en Canadá', z: 'out', w: 'La publicidad no forma parte del pedido.' }
+    ],
+    obj: ['Conquistar el mercado canadiense',
+      'Entregar 500 frascos de salsa artesanal con etiqueta bilingüe en el almacén del distribuidor en Toronto, en 8 semanas',
+      'Mandar salsa a Canadá cuando esté lista',
+      'Vender lo más posible en el extranjero'], objAns: 1, objWhy: ["No es medible ni tiene fecha.", null, "No tiene fecha ni cantidad.", "No se puede medir: ¿cuánto es \"lo más posible\"?"],
+    acts: [
+      { id: 'A', t: 'Revisar requisitos de Canadá y contratar agente aduanal', d: 1, p: [] },
+      { id: 'B', t: 'Diseñar e imprimir etiquetas en inglés y francés', d: 2, p: ['A'] },
+      { id: 'C', t: 'Producir los 500 frascos', d: 2, p: ['A'] },
+      { id: 'D', t: 'Etiquetar y embalar', d: 1, p: ['B', 'C'] },
+      { id: 'E', t: 'Trámite aduanal y documentos de exportación', d: 1, p: ['D'] },
+      { id: 'F', t: 'Flete y entrega en Toronto', d: 3, p: ['E'] }
+    ],
+    ordRec: 'No se puede embalar sin frascos ni etiquetas, ni enviar sin el trámite aduanal. Revisa qué tiene que estar listo antes de cada actividad.',
+    dur: ['8 semanas', '9 semanas', '10 semanas', '7 semanas'], durAns: 0,
+    durOk: '8 semanas: las etiquetas se imprimen mientras se producen los frascos, por eso no suman tiempo.',
+    costs: [
+      { id: 'c1', t: 'Personal de producción y etiquetado', a: 12000, z: 'mo' },
+      { id: 'c2', t: 'Frascos, chiles e insumos', a: 30000, z: 'mat' },
+      { id: 'c3', t: 'Etiquetas bilingües impresas', a: 4000, z: 'mat' },
+      { id: 'c4', t: 'Cajas y embalaje', a: 3000, z: 'mat' },
+      { id: 'c5', t: 'Diseño de la etiqueta', a: 3000, z: 'srv' },
+      { id: 'c6', t: 'Honorarios del agente aduanal', a: 8000, z: 'srv' },
+      { id: 'c7', t: 'Flete a Toronto', a: 25000, z: 'srv' }
+    ],
+    tot: ['$80,000', '$85,000', '$88,000', '$95,000'], totAns: 1,
+    budget: 90000, budCtx: 'Tienes <b>$90,000</b> disponibles para este primer envío.',
+    bud: ['Alcanza exacto', 'No alcanza, faltan $5,000', 'Sí alcanza y sobran $5,000', 'Sí alcanza y sobran $15,000'], budAns: 2,
+    budOk: 'Sobran $5,000. El presupuesto se aprueba y queda como línea base de costos.'
+  }
+};
+
+const CATS = [
+  { id: 'mo', t: '👷 Mano de obra' },
+  { id: 'mat', t: '🧱 Materiales' },
+  { id: 'srv', t: '🚚 Servicios y trámites' }
+];
+
+/* ---------- PASOS ---------- */
+function buildSteps(sc) {
+  const dragQ = 'arrastra cada tarjeta a la columna correcta (o tócala y después toca la columna). Al terminar presiona <b>Confirmar</b>.';
+  return [
+    { st: 0, type: 'sort', board: 'Columnas del plan',
+      zones: [{ id: 'si', t: '✅ Sí caracteriza a un plan de trabajo' }, { id: 'no', t: '❌ No caracteriza a un plan de trabajo' }],
+      items: [
+        { id: 's1', t: 'Objetivos claros y medibles', z: 'si', w: 'Sin objetivos medibles no sabes si el proyecto cumplió.' },
+        { id: 's2', t: 'Actividades con un responsable', z: 'si', w: 'Cada actividad necesita a alguien que responda por ella.' },
+        { id: 's3', t: 'Fechas de inicio y término', z: 'si', w: 'Las fechas permiten medir el avance y detectar atrasos.' },
+        { id: 's4', t: 'Recursos y costos estimados', z: 'si', w: 'Sin recursos ni costos no se puede armar el presupuesto.' },
+        { id: 's5', t: 'Se revisa y actualiza durante el proyecto', z: 'si', w: 'El plan es un documento vivo que se ajusta para dar seguimiento.' },
+        { id: 's6', t: 'Se escribe cuando el proyecto ya terminó', z: 'no', w: 'El plan se hace antes de ejecutar, no al final.' },
+        { id: 's7', t: 'Solo lo conoce el responsable, no el cliente ni el equipo', z: 'no', w: 'El plan se comparte con el cliente y el equipo para que todos sepan qué sigue.' },
+        { id: 's8', t: 'Sin fechas: se hace cuando se pueda', z: 'no', w: 'Sin fechas no hay forma de controlar el avance.' }
+      ],
+      title: '¿Qué tiene un buen plan de trabajo?',
+      ctx: `Antes de arrancar ${sc.short}, identifica las características de un plan que sí permite dar seguimiento.`,
+      que: dragQ,
+      rec: 'Un plan de trabajo tiene objetivos medibles, actividades con responsable, fechas, recursos y costos, y se actualiza para dar seguimiento al proyecto.',
+      ok: 'Esas cinco características permiten dar seguimiento. Un plan sin fechas o que nadie conoce no sirve para controlar el proyecto.' },
+
+    { st: 1, type: 'order', board: 'Pasos del plan maestro',
+      items: [
+        { id: 'p1', t: 'Acordar alcance y objetivos con el cliente', p: [] },
+        { id: 'p2', t: 'Desglosar el trabajo en actividades', p: ['p1'] },
+        { id: 'p3', t: 'Elaborar el calendario', p: ['p2'] },
+        { id: 'p4', t: 'Estimar costos y presupuesto', p: ['p3'] },
+        { id: 'p5', t: 'Integrar y aprobar el plan maestro', p: ['p4'] }
+      ],
+      title: 'Construye el plan maestro',
+      ctx: 'El plan maestro reúne las piezas del plan de trabajo en un orden lógico.',
+      que: 'arrastra cada paso a su número, en el orden en que se elabora (o tócalo y después toca el número). Presiona <b>Confirmar</b>.',
+      rec: 'Primero se acuerda qué se va a hacer, después se desglosa en actividades; con ellas se arma el calendario, se costean y al final se integra todo y el cliente lo aprueba.',
+      ok: 'Así se construye el plan maestro: cada pieza alimenta a la siguiente.' },
+    { st: 1, type: 'mc', vis: 'flow', board: 'Tu plan maestro',
+      opts: ['Es la lista de compras del proyecto',
+        'Integra el alcance, el calendario y el presupuesto aprobados para controlar el proyecto',
+        'Es el reporte que se entrega al cerrar el proyecto',
+        'Es un documento opcional que se hace si sobra tiempo'], ans: 1,
+      why: ['La lista de compras es solo una parte de los costos; el plan maestro integra todo el proyecto.', null, 'El reporte de cierre se hace al final; el plan maestro se hace antes de ejecutar.', 'No es opcional: sin él no hay contra qué comparar el avance.'],
+      title: '¿Para qué sirve el plan maestro?',
+      ctx: 'Ya tienes los pasos. Ahora piensa en su función.',
+      que: 'elige la descripción correcta y presiona <b>Confirmar</b>.',
+      rec: 'El plan maestro vincula el plan de trabajo con las directrices del proyecto y fija las líneas base de alcance, tiempo y costo para controlarlo.',
+      ok: 'El plan maestro es la referencia para controlar: contra él se compara lo que realmente pasa.' },
+
+    { st: 2, type: 'sort', board: 'Alcance del proyecto',
+      zones: [{ id: 'in', t: '✅ Dentro del alcance' }, { id: 'out', t: '🚫 Fuera del alcance' }],
+      items: sc.scope,
+      title: 'Define el alcance',
+      ctx: 'Petición del cliente: ' + sc.request,
+      que: 'lee la petición del cliente y ' + dragQ,
+      rec: 'El alcance incluye solo lo que el cliente pidió. Lo que no está en la petición queda fuera, aunque parezca buena idea.',
+      ok: 'Alcance definido. Dejar por escrito lo que queda fuera evita malentendidos con el cliente.' },
+    { st: 2, type: 'mc', vis: 'scope', board: 'Alcance acordado',
+      opts: sc.obj, ans: sc.objAns, why: sc.objWhy,
+      title: 'Redacta el objetivo',
+      ctx: 'Con el alcance claro, el objetivo debe decir qué se entrega y cuándo.',
+      que: 'elige el objetivo mejor redactado (claro, medible y con fecha) y presiona <b>Confirmar</b>.',
+      rec: 'Un buen objetivo dice qué se entrega, con qué características y en cuánto tiempo. Si no se puede medir, no se puede controlar.',
+      ok: 'Objetivo claro, medible y con fecha: el cliente y el equipo saben exactamente qué se va a entregar.' },
+
+    { st: 3, type: 'order', board: 'Secuencia de actividades', acts: true,
+      items: sc.acts,
+      title: 'Ordena las actividades',
+      ctx: `Estas son las actividades de ${sc.short} con su duración. Algunas dependen de otras.`,
+      que: 'arrastra las actividades a los números en un orden lógico de ejecución y presiona <b>Confirmar</b>.',
+      rec: sc.ordRec,
+      ok: 'Secuencia lógica. Con ella ya se puede armar el calendario.' },
+    { st: 3, type: 'mc', vis: 'gantt', board: 'Calendario del proyecto',
+      opts: sc.dur, ans: sc.durAns, whyFn: 'dur',
+      title: 'Lee el calendario',
+      ctx: 'Algunas actividades se hacen al mismo tiempo.',
+      que: 'observa el calendario y elige en cuántas semanas termina el proyecto. Presiona <b>Confirmar</b>.',
+      rec: 'Las actividades que van en paralelo no se suman. Fíjate en qué semana termina la última barra.',
+      ok: sc.durOk },
+
+    { st: 4, type: 'sort', board: 'Costos por categoría (ficticios)',
+      zones: CATS, items: sc.costs, money: true,
+      title: 'Clasifica los costos',
+      ctx: 'Estos son los costos estimados (ficticios) de ' + sc.short + '.',
+      que: 'arrastra cada costo a su categoría (o tócalo y después toca la categoría). Presiona <b>Confirmar</b>.',
+      rec: 'Mano de obra es el pago a personas; materiales es lo que se compra y se usa en el proyecto; servicios y trámites es lo que se contrata a terceros: fletes, permisos, renta de equipo o asesoría externa.',
+      ok: 'Costos clasificados. Así sabes en qué se va el dinero del proyecto.' },
+    { st: 4, type: 'mc', vis: 'costs', board: 'Presupuesto del proyecto',
+      opts: sc.tot, ans: sc.totAns, whyFn: 'tot',
+      title: 'Calcula el presupuesto',
+      ctx: 'Ya tienes el subtotal de cada categoría.',
+      que: 'suma los subtotales y elige el presupuesto total. Presiona <b>Confirmar</b>.',
+      rec: 'Suma los subtotales de mano de obra, materiales y servicios y trámites.',
+      ok: 'Presupuesto total calculado.' },
+    { st: 4, type: 'mc', vis: 'budget', board: 'Presupuesto contra dinero disponible',
+      opts: sc.bud, ans: sc.budAns, whyFn: 'bud',
+      title: 'Compáralo con el cliente',
+      ctx: sc.budCtx,
+      que: 'elige la conclusión correcta y presiona <b>Confirmar</b>.',
+      rec: 'Resta el presupuesto del proyecto al dinero disponible del cliente.',
+      ok: sc.budOk }
+  ];
+}
+
+/* ---------- ESTADO ---------- */
+let scKey = null, sc = null, steps = [];
+let idx = 0, solved = false, tries = 0, firstOk = 0, playerName = '';
+let sel = null, pl = {}, slots = [], poolOrder = [], picked = null, wrong = new Set();
+let t0 = 0, elapsed = 0, timerId = null;
+
+const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const S = () => steps[idx];
+const item = id => S().items.find(x => x.id === id);
+
+function resetStep() {
+  const s = S();
+  sel = null; picked = null; wrong = new Set();
+  if (s.type === 'sort') { pl = {}; s.items.forEach(i => pl[i.id] = null); }
+  if (s.type === 'order') slots = Array(s.items.length).fill(null);
+  if (s.items) {
+    let o = shuffle(s.items.map(i => i.id));
+    if (s.type === 'order') { let k = 0; while (o.every((v, i) => v === s.items[i].id) && k++ < 10) o = shuffle(o); }
+    poolOrder = o;
+  }
+}
+function isPlaced(id) { return S().type === 'sort' ? !!pl[id] : slots.includes(id); }
+function hasSel() {
+  const s = S();
+  if (s.type === 'sort') return s.items.every(i => pl[i.id]);
+  if (s.type === 'order') return slots.every(Boolean);
+  return sel !== null;
+}
+
+/* ---------- TARJETAS ---------- */
+function cardHTML(id) {
+  const s = S(), it = item(id);
+  let extra = '';
+  if (s.acts) extra = `<small>· ${it.d} sem</small>`;
+  if (s.money) extra = `<small>${money(it.a)}</small>`;
+  const cls = ['card'];
+  if (solved) cls.push('ok');
+  else { if (picked === id) cls.push('pick'); if (wrong.has(id)) cls.push('wrong'); }
+  return `<div class="${cls.join(' ')}" data-id="${id}">${it.t}${extra}</div>`;
+}
+
+function place(id, tgt) {
+  const s = S();
+  if (s.type === 'sort') pl[id] = tgt.z || null;
+  if (s.type === 'order') {
+    const from = slots.indexOf(id);
+    if (tgt.pool) { if (from >= 0) slots[from] = null; }
+    else if (tgt.i != null && from !== tgt.i) {
+      const other = slots[tgt.i];
+      slots[tgt.i] = id;
+      if (from >= 0) slots[from] = other;
+    }
+  }
+  wrong.delete(id); picked = null;
+  const ul = document.querySelector('#fb .tips');
+  if (ul && S().type !== 'mc') { ul.outerHTML = tipsHTML(S()); }
+  sfx.drop(); render();
+}
+
+function targetFrom(el) {
+  if (!el) return null;
+  const z = el.closest('[data-z]'); if (z) return { z: z.dataset.z, el: z };
+  const sl = el.closest('[data-i]'); if (sl) return { i: +sl.dataset.i, el: sl };
+  const p = el.closest('#pool'); if (p) return { pool: true, el: p };
+  return null;
+}
+
+/* Arrastrar con mouse o dedo */
+let drag = null, overEl = null;
+document.addEventListener('pointerdown', e => {
+  const c = e.target.closest('.card[data-id]');
+  if (!c || solved || !S() || !S().items) return;
+  e.preventDefault();
+  try { window.getSelection().removeAllRanges(); } catch (er) {}
+  drag = { id: c.dataset.id, x: e.clientX, y: e.clientY, el: c, moving: false, ghost: null, dx: 0, dy: 0 };
+});
+document.addEventListener('pointermove', e => {
+  if (!drag) return;
+  if (!drag.moving) {
+    if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+    drag.moving = true;
+    const r = drag.el.getBoundingClientRect();
+    drag.dx = drag.x - r.left; drag.dy = drag.y - r.top;
+    const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('pick', 'wrong');
+    g.style.width = r.width + 'px';
+    document.body.appendChild(g); drag.ghost = g;
+    drag.el.classList.add('lift');
+  }
+  e.preventDefault();
+  drag.ghost.style.left = (e.clientX - drag.dx) + 'px';
+  drag.ghost.style.top = (e.clientY - drag.dy) + 'px';
+  const t = targetFrom(document.elementFromPoint(e.clientX, e.clientY));
+  const el = t ? t.el : null;
+  if (el !== overEl) { overEl && overEl.classList.remove('over'); overEl = el; overEl && overEl.classList.add('over'); }
+}, { passive: false });
+function endDrag(e) {
+  if (!drag) return;
+  const d = drag; drag = null;
+  overEl && overEl.classList.remove('over'); overEl = null;
+  if (d.moving) {
+    d.ghost.remove(); d.el.classList.remove('lift');
+    const t = e.type === 'pointerup' ? targetFrom(document.elementFromPoint(e.clientX, e.clientY)) : null;
+    if (t) place(d.id, t); else render();
+  } else {
+    picked = picked === d.id ? null : d.id;
+    sfx.click(); render();
+  }
+}
+document.addEventListener('pointerup', endDrag);
+document.addEventListener('pointercancel', endDrag);
+
+/* Tocar tarjeta y luego destino */
+document.addEventListener('click', e => {
+  if (!picked || solved || e.target.closest('.card')) return;
+  const t = targetFrom(e.target);
+  if (!t) return;
+  if (t.pool && !isPlaced(picked)) { picked = null; render(); return; }
+  place(picked, t);
+});
+
+/* ---------- VISUALES ---------- */
+function schedule(acts) {
+  const ef = {}, es = {};
+  acts.forEach(a => { es[a.id] = Math.max(0, ...a.p.map(p => ef[p])); ef[a.id] = es[a.id] + a.d; });
+  return { es, ef, total: Math.max(...acts.map(a => ef[a.id])) };
+}
+
+function vizFlow() {
+  const it = steps.find(x => x.st === 1 && x.type === 'order').items;
+  return `<div class="flow">${it.map((x, i) => `${i ? '<div class="farrow">▼</div>' : ''}<div class="fstep ${i === it.length - 1 ? 'last' : ''}"><span class="n">${i + 1}</span>${x.t}${i === it.length - 1 ? ' = línea base' : ''}</div>`).join('')}</div>
+  <div class="cap">Alcance + calendario + presupuesto aprobados por el cliente</div>`;
+}
+function vizScope() {
+  const li = z => sc.scope.filter(x => x.z === z).map(x => `<li>${x.t}</li>`).join('');
+  return `<div class="req">📝 ${sc.request}</div>
+  <div class="cols"><div class="col in"><h4>✅ Dentro del alcance</h4><ul>${li('in')}</ul></div>
+  <div class="col out"><h4>🚫 Fuera del alcance</h4><ul>${li('out')}</ul></div></div>`;
+}
+function vizGantt() {
+  const { es, total } = schedule(sc.acts);
+  const W = Math.max(total, ...sc.dur.map(t => parseInt(t)));
+  let h = `<div class="gantt" style="grid-template-columns:minmax(120px,1.5fr) repeat(${W},1fr)">`;
+  h += `<div class="gh" style="grid-row:1;grid-column:1"></div>`;
+  for (let w = 1; w <= W; w++) h += `<div class="gh ${solved && w === total ? 'end' : ''}" style="grid-row:1;grid-column:${w + 1}">S${w}</div>`;
+  sc.acts.forEach((a, r) => {
+    const row = r + 2;
+    h += `<div class="gl" style="grid-row:${row};grid-column:1">${a.t} <small>${a.d} sem</small></div>`;
+    for (let w = 1; w <= W; w++) h += `<div class="gc" style="grid-row:${row};grid-column:${w + 1}"></div>`;
+    h += `<div class="gb" style="grid-row:${row};grid-column:${es[a.id] + 2} / span ${a.d}"></div>`;
+  });
+  h += '</div>';
+  h += `<div class="cap">${solved ? `🏁 <b>Fin del proyecto: semana ${total}</b>` : 'Cada barra muestra en qué semanas se hace la actividad'}</div>`;
+  return h;
+}
+function totalCost() { return sc.costs.reduce((a, c) => a + c.a, 0); }
+function vizCosts() {
+  let h = '<div class="costs">';
+  CATS.forEach(c => {
+    const its = sc.costs.filter(x => x.z === c.id);
+    h += `<div class="cat"><h4>${c.t}</h4>${its.map(x => `<div class="r"><span>${x.t}</span><b>${money(x.a)}</b></div>`).join('')}
+      <div class="sub"><span>Subtotal</span><span>${money(its.reduce((a, x) => a + x.a, 0))}</span></div></div>`;
+  });
+  h += `</div><div class="total"><span>Presupuesto total</span><b>${solved ? money(totalCost()) : '?'}</b></div><div class="note">Costos ficticios para fines de práctica</div>`;
+  return h;
+}
+function vizBudget() {
+  const t = totalCost(), b = sc.budget, m = Math.max(t, b) * 1.08;
+  const diff = b - t;
+  const h = `<div class="bud">
+    <div><div class="lab">📋 Presupuesto del proyecto</div><div class="trk"><div class="fill" data-w="${t / m * 100}" style="background:linear-gradient(90deg,var(--ind),var(--blue))">${money(t)}</div></div></div>
+    <div><div class="lab">💰 Dinero disponible del cliente</div><div class="trk"><div class="fill" data-w="${b / m * 100}" style="background:linear-gradient(90deg,#1F5BFF,#3FA9FF)">${money(b)}</div></div></div>
+  </div>
+  <div class="cap">${solved ? (diff >= 0 ? `✅ <b>Sobran ${money(diff)}</b>` : `⚠️ <b>Faltan ${money(-diff)}</b>`) : '¿Alcanza el dinero del cliente?'}</div>
+  <div class="note">Montos ficticios para fines de práctica</div>`;
+  setTimeout(() => document.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w + '%'), 30);
+  return h;
+}
+
+function boardHTML(s) {
+  if (s.type === 'sort') {
+    return `<div class="zones z${s.zones.length}">${s.zones.map(z => {
+      const ids = poolOrder.filter(id => pl[id] === z.id);
+      return `<div class="zone" data-z="${z.id}"><h3>${z.t}</h3>${ids.map(cardHTML).join('') || '<span class="ph">Suelta aquí</span>'}</div>`;
+    }).join('')}</div>`;
+  }
+  if (s.type === 'order') {
+    return `<div class="slots">${slots.map((id, i) => `<div class="slot" data-i="${i}"><span class="num">${i + 1}</span>${id ? cardHTML(id) : '<span class="ph">Suelta aquí</span>'}</div>`).join('')}</div>`;
+  }
+  return { flow: vizFlow, scope: vizScope, gantt: vizGantt, costs: vizCosts, budget: vizBudget }[s.vis]();
+}
+
+/* ---------- RENDER ---------- */
+function stageDone(i) {
+  const s = S();
+  const last = steps.map(x => x.st).lastIndexOf(i);
+  return i < s.st || (i === s.st && solved && idx === last);
+}
+function render() {
+  const s = S();
+  $('#etapa').textContent = `Etapa ${s.st + 1} de 5 · ${STAGES[s.st]}`;
+  $('#qtitle').textContent = s.title;
+  $('#ctx').innerHTML = s.ctx;
+  $('#que').innerHTML = '👉 <b>Qué hacer:</b> ' + s.que;
+  const box = $('#opts');
+  if (s.type === 'mc') {
+    box.className = 'opts'; box.innerHTML = '';
+    s.opts.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt' + (sel === i ? ' sel' : '') + (solved && i === s.ans ? ' right' : '');
+      b.textContent = t; b.disabled = solved;
+      b.onclick = () => { sel = i; sfx.click(); $('#fb').innerHTML = ''; render(); };
+      box.appendChild(b);
+    });
+  } else {
+    box.className = '';
+    const un = poolOrder.filter(id => !isPlaced(id));
+    box.innerHTML = `<div class="poolLab">Tarjetas por acomodar: ${un.length}</div><div class="pool" id="pool">${un.map(cardHTML).join('') || '<span class="done">✓ Todas las tarjetas están acomodadas</span>'}</div>`;
+  }
+  $('#btnOk').disabled = solved || (s.type === 'mc' && sel === null);
+  $('#btnOk').classList.toggle('ready', !solved && hasSel());
+  $('#btnNext').disabled = !solved;
+  $('#btnNext').textContent = idx === steps.length - 1 ? 'Ver certificado 🏆' : 'Siguiente ➜';
+  $('#bTitle').textContent = s.board;
+  $('#scChip').textContent = `${sc.emoji} ${sc.name}`;
+  $('#check').innerHTML = STAGES.map((t, i) => {
+    const c = stageDone(i) ? 'done' : (i === s.st ? 'on' : '');
+    return `<span class="ck ${c}">${c === 'done' ? '✅' : '☐'} ${t}</span>`;
+  }).join('');
+  $('#bview').innerHTML = boardHTML(s);
+  updateProgress();
+}
+
+function updateProgress() {
+  const s = S();
+  const done = idx + (solved ? 1 : 0);
+  $('#bar').style.width = (done / steps.length * 100) + '%';
+  $('#stages').innerHTML = STAGES.map((t, i) => {
+    const cls = stageDone(i) ? 'done' : (i === s.st ? 'on' : '');
+    return `<div class="stage ${cls}"><span class="n">${cls === 'done' ? '✓' : i + 1}</span><span class="t">${t}</span></div>`;
+  }).join('');
+}
+
+/* ---------- VALIDACIÓN ---------- */
+function check() {
+  const s = S();
+  if (s.type === 'mc') return sel === s.ans;
+  wrong = new Set();
+  if (s.type === 'sort') s.items.forEach(i => { if (pl[i.id] !== i.z) wrong.add(i.id); });
+  if (s.type === 'order') {
+    const pos = {}; slots.forEach((id, i) => pos[id] = i);
+    s.items.forEach(it => { if (!it.p.every(p => pos[p] < pos[it.id])) wrong.add(it.id); });
+  }
+  return wrong.size === 0;
+}
+
+const CATW = {
+  mo: 'es un pago a personas por su trabajo.',
+  mat: 'es algo que se compra y se usa o se queda en el proyecto.',
+  srv: 'es un servicio o trámite que se contrata a terceros.'
+};
+function mcWhy(s, i) {
+  if (s.why && s.why[i]) return s.why[i];
+  const v = parseInt(String(s.opts[i]).replace(/[^0-9]/g, ''));
+  if (s.whyFn === 'dur') {
+    const sum = sc.acts.reduce((a, x) => a + x.d, 0), tot = schedule(sc.acts).total;
+    if (v === sum) return 'Sumaste todas las duraciones, pero hay actividades que van al mismo tiempo.';
+    if (v < tot) return 'La última barra termina después de esa semana. Revisa la fila de la última actividad.';
+    return 'El proyecto termina antes. Busca la semana donde acaba la última barra.';
+  }
+  if (s.whyFn === 'tot') {
+    const tot = totalCost();
+    return v < tot ? 'Te faltó sumar algún costo. Suma los tres subtotales.' : 'Sumaste de más. Revisa los tres subtotales.';
+  }
+  if (s.whyFn === 'bud') return `Compara de nuevo: el proyecto cuesta ${money(totalCost())} y el cliente tiene ${money(sc.budget)}.`;
+  return '';
+}
+function tipsHTML(s) {
+  const zn = id => (s.zones.find(z => z.id === id) || {}).t || '';
+  let li = [];
+  if (s.type === 'sort') {
+    li = [...wrong].map(id => {
+      const it = item(id);
+      const w = s.money ? `${it.t} ${CATW[it.z]}` : it.w;
+      return `<li><b>✖ ${it.t}</b> no va en «${zn(pl[id])}».<br><i>Pista: ${w}</i></li>`;
+    });
+  }
+  if (s.type === 'order') {
+    const pos = {}; slots.forEach((id, i) => pos[id] = i);
+    li = [...wrong].map(id => {
+      const it = item(id);
+      const need = it.p.filter(p => !(pos[p] < pos[id])).map(p => `«${item(p).t}»`).join(' y ');
+      return `<li><b>✖ ${it.t}</b> está antes de tiempo.<br><i>Pista: primero debe estar lista ${need}.</i></li>`;
+    });
+  }
+  return li.length ? `<ul class="tips">${li.join('')}</ul>` : '';
+}
+
+function showFb() { setTimeout(() => { const f = $('#fb'); if (f.innerHTML) f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 60); }
+$('#btnOk').onclick = () => {
+  if (solved) return;
+  const s = S();
+  if (s.type !== 'mc' && !hasSel()) {
+    const n = s.type === 'sort' ? s.items.filter(i => !pl[i.id]).length : slots.filter(x => !x).length;
+    sfx.bad();
+    $('#fb').innerHTML = `<span class="bad">✖ Revisa tu respuesta.</span><span class="rec">Recuerda: acomoda todas las tarjetas antes de confirmar. ${n === 1 ? 'Te falta 1 tarjeta' : `Te faltan ${n} tarjetas`}.</span>`;
+    showFb();
+    return;
+  }
+  if (s.type === 'mc' && sel === null) return;
+  if (check()) {
+    solved = true;
+    if (tries === 0) firstOk++;
+    sfx.ok(); confetti(45, .3);
+    $('#fb').innerHTML = `<span class="good">✔ ¡Correcto!</span><span class="exp">${s.ok}</span><span class="rec" style="font-style:normal;color:var(--ind);font-weight:600">👉 Presiona <b>${idx === steps.length - 1 ? 'Ver certificado' : 'Siguiente'}</b> para continuar.</span>`;
+  } else {
+    tries++;
+    sfx.bad();
+    let body = '';
+    if (s.type === 'mc') {
+      const w = mcWhy(s, sel);
+      body = w ? `<ul class="tips"><li><b>✖ ${s.opts[sel]}</b><br><i>Pista: ${w}</i></li></ul>` : '';
+    } else {
+      const n = wrong.size;
+      body = `<span class="exp">${n === 1 ? 'Hay 1 tarjeta' : `Hay ${n} tarjetas`} en rojo. Muévela${n === 1 ? '' : 's'} y vuelve a confirmar.</span>` + tipsHTML(s);
+    }
+    $('#fb').innerHTML = `<span class="bad">✖ Revisa tu respuesta.</span><span class="rec">Recuerda: ${s.rec}</span>${body}`;
+  }
+  render();
+  showFb();
+};
+
+$('#btnNext').onclick = () => {
+  if (!solved) return;
+  const prevSt = S().st;
+  if (idx === steps.length - 1) { finish(); return; }
+  idx++; solved = false; tries = 0; resetStep();
+  $('#fb').innerHTML = '';
+  if (S().st !== prevSt) { sfx.stage(); confetti(90, .25); toast(`🎉 Etapa ${prevSt + 1} completada: ${STAGES[prevSt]} ✅`); }
+  render();
+};
+
+/* ---------- TIEMPO ---------- */
+const fmtT = sec => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+function startTimer() {
+  t0 = Date.now(); clearInterval(timerId);
+  timerId = setInterval(() => { elapsed = Math.floor((Date.now() - t0) / 1000); $('#timer').textContent = '⏱ ' + fmtT(elapsed); }, 500);
+}
+
+/* ---------- INICIO ---------- */
+$('#scs').innerHTML = Object.entries(SC).map(([k, v]) => `<button class="sc" data-k="${k}"><span class="e">${v.emoji}</span><div><b>${v.name}</b><span>${v.sub}</span></div></button>`).join('');
+function canStart() { $('#btnStart').disabled = !(scKey && $('#nameIn').value.trim().length >= 2); }
+$('#scs').onclick = e => {
+  const b = e.target.closest('.sc'); if (!b) return;
+  scKey = b.dataset.k; sfx.click();
+  document.querySelectorAll('.sc').forEach(x => x.classList.toggle('sel', x === b));
+  canStart();
+};
+$('#nameIn').addEventListener('input', canStart);
+$('#nameIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#btnStart').disabled) $('#btnStart').click(); });
+function startGame() {
+  sc = SC[scKey]; steps = buildSteps(sc);
+  idx = 0; solved = false; tries = 0; firstOk = 0;
+  resetStep(); $('#fb').innerHTML = ''; $('#timer').textContent = '⏱ 00:00';
+  render(); startTimer();
+}
+$('#btnStart').onclick = () => {
+  playerName = $('#nameIn').value.trim();
+  $('#introOv').classList.remove('show');
+  sfx.stage(); startGame();
+};
+
+/* ---------- FINAL Y CERTIFICADO ---------- */
+function finish() {
+  clearInterval(timerId);
+  elapsed = Math.floor((Date.now() - t0) / 1000);
+  $('#bar').style.width = '100%';
+  $('#stages').innerHTML = STAGES.map(t => `<div class="stage done"><span class="n">✓</span><span class="t">${t}</span></div>`).join('');
+  $('#check').innerHTML = STAGES.map(t => `<span class="ck done">✅ ${t}</span>`).join('');
+  const total = steps.length;
+  $('#cName').textContent = playerName;
+  $('#cSc').textContent = `Escenario: ${sc.name} · alcance, calendario y costos`;
+  $('#cScore').textContent = `${firstOk}/${total}`;
+  $('#cTime').textContent = fmtT(elapsed);
+  $('#cDate').textContent = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+  $('#cMedal').textContent = firstOk >= total - 1 ? '🏆' : (firstOk >= total - 4 ? '🥈' : '🥉');
+  sfx.win(); confetti(220, .3); setTimeout(() => confetti(160, .2), 700);
+  $('#certOv').classList.add('show');
+}
+
+function shareText() {
+  return `📋 Completé el desafío "Arma tu plan de trabajo" (escenario: ${sc.name}) con ${firstOk}/${steps.length} aciertos a la primera en ${fmtT(elapsed)}. Diplomado en Administración de Proyectos · UTEL Educación Continua.`;
+}
+const pageUrl = () => location.href.split('#')[0];
+$('#shWa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(shareText() + ' ' + pageUrl()), '_blank');
+$('#shFb').onclick = () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl()) + '&quote=' + encodeURIComponent(shareText()), '_blank');
+$('#shX').onclick = () => window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText()) + '&url=' + encodeURIComponent(pageUrl()), '_blank');
+$('#shCp').onclick = async () => {
+  const t = shareText() + ' ' + pageUrl();
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('📋 Texto copiado');
+};
+
+function wrapText(g, text, x, y, maxW, lh) {
+  const words = String(text).split(' '); let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (g.measureText(test).width > maxW && line) { g.fillText(line, x, y); line = w; y += lh; }
+    else line = test;
+  }
+  g.fillText(line, x, y); return y;
+}
+function rr(g, x, y, w, hh, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + hh, r); g.arcTo(x + w, y + hh, x, y + hh, r); g.arcTo(x, y + hh, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+$('#shSt').onclick = async () => {
+  try { await document.fonts.ready; } catch (e) {}
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
+  const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 1080, 1920);
+  gr.addColorStop(0, '#2B0085'); gr.addColorStop(.55, '#4100BE'); gr.addColorStop(1, '#1F5BFF');
+  g.fillStyle = gr; g.fillRect(0, 0, 1080, 1920);
+  g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 4; rr(g, 40, 40, 1000, 1840, 40); g.stroke();
+  g.textAlign = 'center'; g.fillStyle = '#fff';
+  g.font = '800 96px Poppins, sans-serif'; g.fillText('utel', 540, 190);
+  g.font = '600 38px Poppins, sans-serif'; g.fillText('educación continua', 540, 250);
+  // lista palomeada decorativa
+  STAGES.forEach((t, i) => {
+    const y = 340 + i * 82;
+    g.fillStyle = 'rgba(255,255,255,.14)'; rr(g, 240, y, 600, 64, 18); g.fill();
+    g.fillStyle = '#FFC83D'; g.beginPath(); g.arc(290, y + 32, 20, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#2B0085'; g.font = '800 26px Poppins, sans-serif'; g.fillText('✓', 290, y + 41);
+    g.fillStyle = '#fff'; g.textAlign = 'left'; g.font = '600 32px Poppins, sans-serif'; g.fillText(t, 330, y + 43); g.textAlign = 'center';
+  });
+  g.font = '700 42px Poppins, sans-serif'; g.fillStyle = '#BFD9FF'; g.fillText('CERTIFICADO DE LOGRO', 540, 860);
+  g.fillStyle = '#fff'; g.font = '800 84px Poppins, sans-serif';
+  let y = wrapText(g, playerName, 540, 970, 920, 96);
+  g.font = '500 42px Poppins, sans-serif'; y = wrapText(g, 'completó el desafío', 540, y + 85, 920, 52);
+  g.font = '800 66px Poppins, sans-serif'; y = wrapText(g, 'Arma tu plan de trabajo', 540, y + 85, 900, 78);
+  g.font = '500 38px Poppins, sans-serif'; g.fillStyle = '#DCE8FF'; y = wrapText(g, `Escenario: ${sc.name}`, 540, y + 62, 920, 48);
+  const st = [[`${firstOk}/${steps.length}`, 'aciertos'], [fmtT(elapsed), 'tiempo'], [new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }), 'fecha']];
+  st.forEach((s, i) => {
+    const bx = 110 + i * 300, by = y + 60;
+    g.fillStyle = 'rgba(255,255,255,.15)'; rr(g, bx, by, 260, 170, 26); g.fill();
+    g.fillStyle = '#fff'; g.font = '800 58px Poppins, sans-serif'; g.fillText(s[0], bx + 130, by + 90);
+    g.font = '500 30px Poppins, sans-serif'; g.fillStyle = '#DCE8FF'; g.fillText(s[1], bx + 130, by + 138);
+  });
+  g.fillStyle = '#fff'; g.font = '600 36px Poppins, sans-serif';
+  g.fillText('Diplomado en Administración de Proyectos', 540, 1680);
+  g.font = 'italic 500 30px Poppins, sans-serif'; g.fillStyle = '#DCE8FF';
+  g.fillText('Módulo 3 · Semana 1 · Docente: Dr. Armando Maravilla', 540, 1750);
+  c.toBlob(async blob => {
+    const file = new File([blob], 'certificado_plan_de_trabajo_semana1.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], text: shareText() }); return; } catch (e) {}
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('📲 Imagen descargada');
+  }, 'image/png');
+};
+
+$('#btnReplay').onclick = () => {
+  $('#certOv').classList.remove('show');
+  scKey = null; document.querySelectorAll('.sc').forEach(x => x.classList.remove('sel'));
+  canStart();
+  $('#introOv').classList.add('show');
+};
+</script>
+</body>
+</html>
